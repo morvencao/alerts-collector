@@ -20,7 +20,7 @@ import (
 func main() {
 	// default configuration for webhook server
 	whOpts := &webhook.Options{
-		ListenAddr: ":8080",
+		ListenAddr: ":8443",
 		CertFile:   "/etc/alerts-collector/certs/tls.crt",
 		KeyFile:    "/etc/alerts-collector/certs/tls.key",
 	}

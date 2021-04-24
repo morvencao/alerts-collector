@@ -75,10 +75,10 @@ func (am *Alertmanager) postAlerts(ctx context.Context, u url.URL, r io.Reader) 
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := am.client.Do(req)
-	defer resp.Body.Close()
 	if err != nil {
 		return fmt.Errorf("failed to send request to %q: %v", u.String(), err)
 	}
+	defer resp.Body.Close()
 	level.Info(am.logger).Log("msg", "post an alert")
 
 	if resp.StatusCode/100 != 2 {
