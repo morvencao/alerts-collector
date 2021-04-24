@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"reflect"
 	"sync"
 	"time"
 
@@ -39,7 +40,7 @@ func NewAlertmanager(l log.Logger, amcfg AlertmanagerConfig) (*Alertmanager, err
 	}
 
 	// TODO(morvencao): support dynamic service discovery
-	if amcfg.EndpointsConfig == nil || amcfg.EndpointsConfig.StaticAddresses == nil {
+	if reflect.DeepEqual(amcfg.EndpointsConfig, EndpointsConfig{}) || len(amcfg.EndpointsConfig.StaticAddresses) == 0 {
 		return nil, fmt.Errorf("failed to get endpoint addresses")
 	}
 
@@ -69,7 +70,12 @@ func (am *Alertmanager) postAlerts(ctx context.Context, u url.URL, r io.Reader) 
 	if err != nil {
 		return err
 	}
-	ctx, cancel := context.WithTimeout(ctx, am.timeout)
+	timeout := am.timeout
+	// set defaut timeout 10s if the timeout for the alertmanager client is not set
+	if int64(am.timeout) == 0 {
+		timeout = 10 * time.Second
+	}
+	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	req = req.WithContext(ctx)
 	req.Header.Set("Content-Type", "application/json")
@@ -122,7 +128,6 @@ func NewForwarder(l log.Logger, amConfigFile string) (*Forwarder, error) {
 		if _, found := versionPresent[am.version]; found {
 			continue
 		}
-		versionPresent[am.version] = true
 		versions = append(versions, am.version)
 	}
 

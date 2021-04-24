@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alerts-collector-config
+  labels:
+    app: alerts-collector
+data:
+  config.yaml: |
+    alertmanagers:
+    - http_config:
+        bearer_token_file: /etc/alerts-collector/k8s-token/alerts-collector/token
+        tls_config:
+          ca_file: /etc/alerts-collector/configmap/alertmanager-ca-bundle/service-ca.crt
+          server_name: <REPLACE_THIS_WITH_UPSTREAM_ALERTMMANAGER_SVC_FQDN>
+          insecure_skip_verify: false
+      scheme: https
+      static_configs:
+      - <REPLACE_THIS_WITH_UPSTREAM_ALERTMMANAGER_ENDPOINT>
+      api_version: v2
+---
+

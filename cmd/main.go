@@ -20,9 +20,9 @@ import (
 func main() {
 	// default configuration for webhook server
 	whOpts := &webhook.Options{
-		ListenAddr: ":8443",
-		CertFile:   "/etc/alerts-collector/certs/tls.crt",
-		KeyFile:    "/etc/alerts-collector/certs/tls.key",
+		Port:     8443,
+		CertFile: "/etc/alerts-collector/certs/tls.crt",
+		KeyFile:  "/etc/alerts-collector/certs/tls.key",
 	}
 
 	// default log level: info
@@ -32,7 +32,7 @@ func main() {
 	amConfigFile := "/etc/alerts-collector/config/alertmanager-config/config.yaml"
 
 	// init command line parameters
-	flag.StringVar(&whOpts.ListenAddr, "listen-addr", whOpts.ListenAddr, "alerts collector listen address.")
+	flag.IntVar(&whOpts.Port, "port", whOpts.Port, "port for the alerts collector.")
 	flag.StringVar(&logLevel, "log-level", logLevel, "Log filtering level. e.g info, debug, warn, error.")
 	flag.StringVar(&whOpts.CertFile, "tls-cert", whOpts.CertFile, "File containing the x509 Certificate for HTTPS.")
 	flag.StringVar(&whOpts.KeyFile, "tls-key", whOpts.KeyFile, "File containing the x509 private key to --tlsCertFile.")

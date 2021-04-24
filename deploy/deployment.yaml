@@ -1,0 +1,76 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alerts-collector
+  labels:
+    app: alerts-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alerts-collector
+  template:
+    metadata:
+      labels:
+        app: alerts-collector
+    spec:
+      containers:
+      - name: alerts-collector
+        image: quay.io/morvencao/alerts-collector:latest
+        imagePullPolicy: IfNotPresent
+        args:
+        - -port=8443
+        - -log-level=debug
+        - -tls-cert=/etc/alerts-collector/certs/tls.crt
+        - -tls-key=/etc/alerts-collector/certs/tls.key
+        - -alertmanagers.config-file=/etc/alerts-collector/config/alertmanager-config/config.yaml
+        ports:
+        - name: web
+          containerPort: 8443
+        livenessProbe:
+          httpGet:
+            scheme: HTTPS
+            path: /healthz
+            port: web
+        readinessProbe:
+          httpGet:
+            scheme: HTTPS
+            path: /healthz
+            port: web
+        resources:
+          requests:
+            cpu: 10m
+            memory: 30Mi
+        volumeMounts:
+        - name: alerts-collector-config
+          mountPath: /etc/alerts-collector/config/alertmanager-config
+          readOnly: true
+        - name: alertmanager-ca-bundle
+          mountPath: /etc/alerts-collector/configmap/alertmanager-ca-bundle
+          readOnly: true
+        - name: alerts-collector-k8s-token
+          mountPath: /etc/alerts-collector/k8s-token/alerts-collector
+          readOnly: true
+        - name: alerts-collector-main-tls
+          mountPath: /etc/alerts-collector/certs
+          readOnly: true
+      volumes:
+      - name: alerts-collector-config
+        configMap:
+          name: alerts-collector-config
+          defaultMode: 420
+      - name: alertmanager-ca-bundle
+        configMap:
+          defaultMode: 420
+          name: alertmanager-ca-bundle
+      - name: alerts-collector-k8s-token
+        secret:
+          defaultMode: 420
+          secretName: alerts-collector-k8s-token
+      - name: alerts-collector-main-tls
+        secret:
+          defaultMode: 420
+          secretName: alerts-collector-main-tls
+---
+

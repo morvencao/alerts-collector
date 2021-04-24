@@ -26,10 +26,10 @@ type AlertingConfig struct {
 
 // AlertmanagerConfig represents a client to a cluster of Alertmanager endpoints.
 type AlertmanagerConfig struct {
-	HTTPClientConfig *ClientConfig    `yaml:"http_config"`
-	EndpointsConfig  *EndpointsConfig `yaml:",inline"`
-	Timeout          model.Duration   `yaml:"timeout"`
-	APIVersion       APIVersion       `yaml:"api_version"`
+	HTTPClientConfig ClientConfig    `yaml:"http_config"`
+	EndpointsConfig  EndpointsConfig `yaml:",inline"`
+	Timeout          model.Duration  `yaml:"timeout"`
+	APIVersion       APIVersion      `yaml:"api_version"`
 }
 
 // ClientConfig configures an HTTP client.
@@ -92,7 +92,7 @@ func loadAlertingConfig(configFile string) (*AlertingConfig, error) {
 		return nil, fmt.Errorf("failed to load configurations from file %s: %v", configFile, err)
 	}
 
-	var alertingCfg *AlertingConfig
+	alertingCfg := &AlertingConfig{}
 	if err := yaml.UnmarshalStrict(configYAML, alertingCfg); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal configurations: %v", err)
 	}
@@ -100,7 +100,7 @@ func loadAlertingConfig(configFile string) (*AlertingConfig, error) {
 }
 
 // createHTTPClient returns a new HTTP client based on alertmanager configuration
-func createHTTPClient(clientCfg *ClientConfig, name string) (*http.Client, error) {
+func createHTTPClient(clientCfg ClientConfig, name string) (*http.Client, error) {
 	httpClientConfig := config.HTTPClientConfig{
 		BearerToken:     config.Secret(clientCfg.BearerToken),
 		BearerTokenFile: clientCfg.BearerTokenFile,

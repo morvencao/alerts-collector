@@ -19,11 +19,11 @@ import (
 
 // webhook server options
 type Options struct {
-	ListenAddr string               // webhook server listen address
-	CertFile   string               // path to the x509 certificate for https
-	KeyFile    string               // path to the x509 private key matching `CertFile`
-	Logger     log.Logger           // logger for the webhook server
-	Forwarder  *forwarder.Forwarder // alert forwarder for the the webhook server
+	Port      int                  // webhook server port
+	CertFile  string               // path to the x509 certificate for https
+	KeyFile   string               // path to the x509 private key matching `CertFile`
+	Logger    log.Logger           // logger for the webhook server
+	Forwarder *forwarder.Forwarder // alert forwarder for the the webhook server
 }
 
 // webhook server
@@ -44,7 +44,7 @@ func NewWebhook(opts *Options) (*Webhook, error) {
 		logger:    opts.Logger,
 		forwarder: opts.Forwarder,
 		server: &http.Server{
-			Addr:      opts.ListenAddr,
+			Addr:      fmt.Sprintf(":%v", opts.Port),
 			TLSConfig: &tls.Config{Certificates: []tls.Certificate{pair}},
 		},
 	}, nil
